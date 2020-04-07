@@ -23,32 +23,7 @@ public class LeaderboardAspectLogger {
         }
         return returnedVal;
     }
-//    
-//    @Around("execution(* com.sapient.rulesengine.RulesEngineController.getActivityData(List<JSONObject>))")
-//    public Object aroundGetActivityData(ProceedingJoinPoint joinPoint){
-//        Object returnedVal=null;
-//        try {
-//            log.debug("Before");
-//            returnedVal=joinPoint.proceed();
-//            log.debug("After");
-//        } catch (Throwable e) {
-//            log.error("Error occured");
-//        }
-//        return returnedVal;
-//    }
-//    
-//    @Around("execution(* com.sapient.rulesengine.RulesEngineController.topFive(String,List<JSONObject>))")
-//    public Object aroundtopFive(ProceedingJoinPoint joinPoint){
-//        Object returnedVal=null;
-//        try {
-//            log.debug("Before");
-//            returnedVal=joinPoint.proceed();
-//            log.debug("After");
-//        } catch (Throwable e) {
-//            log.error("Error occured");
-//        }
-//        return returnedVal;
-//    }
+
     
    
     

@@ -2,7 +2,6 @@ package com.sapient.rulesengine;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
@@ -28,14 +27,9 @@ public class RulesEngine {
 	@Autowired
 	RulesServiceProxy rulesServiceProxy;
 
-	public List<LeaderBoardBean> IterateOverActivities(List<JSONObject> activityData) {
-
-		//List<HashMap<String,Integer>> scores = new ArrayList<HashMap<String,Integer>>(); 
+	public List<LeaderBoardBean> iterateOverActivities(List<JSONObject> activityData) {
+ 
 		ListIterator<JSONObject> iterator =  activityData.listIterator();
-		List<LeaderBoardBean> lb = new ArrayList<LeaderBoardBean>();
-
-
-
 		while(iterator.hasNext()) {
 			JSONObject activity = iterator.next();
 			String activityName = (String) activity.get("name");
@@ -46,41 +40,18 @@ public class RulesEngine {
 			else 
 			{
 
-				lb =computationOfScores(activityName,activity);
+			computationOfScores(activityName,activity);
 			}
-			//we have to check here if activity is udemy or hackerank
-			// if hackerank the same process will suffice.
-			// if udemy a method should be made to consolidate a masterudemy list
-			//this master udemy list needs to be further consolidated with masterLeader
+			
 		}
 
 		return masterLeader;
 	}
-	//
-	//	public List<LeaderBoardBean> getMasterLeader() {
-	//		return masterLeader;
-	//	}
-	//
-	//	public void setMasterLeader(List<LeaderBoardBean> masterLeader) {
-	//		this.masterLeader = masterLeader;
-	//	}
+	
+	public void computationOfScores(String activityName,JSONObject activityData) {
 
-	public List<LeaderBoardBean> computationOfScores(String activityName,JSONObject activityData) {
-
-		// Reading and Splitting data and assigned rules on activity
+		
 		ObjectMapper mapper = new ObjectMapper();
-
-		//		//Rules Mapping
-		//		LinkedHashMap<String,JSONObject> assignedRulesData= (LinkedHashMap<String, JSONObject>) activityData.get("activity");
-		//		List<AssignRules> assignedRules = mapper.convertValue(assignedRulesData.get("assessmentRules"),new TypeReference<List<AssignRules>>() { });
-		//
-		//		//Data Mapping
-		//		LinkedHashMap<String, JSONObject> uploadData =  (LinkedHashMap<String, JSONObject>) activityData.get("progressData");
-		//		List<HackerDataFetch> data = mapper.convertValue(uploadData.get("data"),new TypeReference<List<HackerDataFetch>>() { });
-		//
-		//		
-
-		//	List<LinkedHashMap<String, Boolean>> assRules = (List<LinkedHashMap<String, Boolean>>) activityData.get("assessmentRules");
 		List<AssignRules> assignedRules = mapper.convertValue(activityData.get("assessmentRules"),new TypeReference<List<AssignRules>>() { });
 
 		List<HackerDataFetch> data = mapper.convertValue(activityData.get("progressDataHackerrank"),new TypeReference<List<HackerDataFetch>>() { });
@@ -91,10 +62,7 @@ public class RulesEngine {
 
 		List<RulesBean> finalRules = filterRules(assignedRules);
 
-		List<LeaderBoardBean> leaderboardData = computeFinalScores(activityName,finalRules, data);
-
-		//scores integere value -> LEaderBoard bean ke totalscores
-		return leaderboardData;
+		computeFinalScores(activityName,finalRules, data);
 	}
 
 	public List<RulesBean> filterRules(List<AssignRules> assignedRules){
@@ -123,14 +91,11 @@ public class RulesEngine {
 		return finalRules; 
 	}
 
-	public List<LeaderBoardBean> computeFinalScores(String activityName,List<RulesBean> rules,List<HackerDataFetch> data){
+	public void computeFinalScores(String activityName,List<RulesBean> rules,List<HackerDataFetch> data){
 
-		List<LeaderBoardBean> leaderboardData = new ArrayList<LeaderBoardBean>();
 		Integer rankBasedOnCompletionTime=-1;
 
 		for(HackerDataFetch userData:data){
-
-			//Users score in activity
 			Integer userScore = userData.getScore();
 			rankBasedOnCompletionTime+=1;
 
@@ -138,9 +103,7 @@ public class RulesEngine {
 				if(rule.getCategory().equals("Score")){
 
 					if ((userData.getScore()/userData.getActivityScore())*100 >=rule.getOperand1() && (userData.getScore()/userData.getActivityScore())*100<=rule.getOperand2()) {
-
 						userScore += rule.getScore();
-						//scores.put(userData.getName(),scores.get(userData.getName())+rule.getScore());
 					}
 					continue;
 
@@ -152,7 +115,7 @@ public class RulesEngine {
 					if(rankBasedOnCompletionTime>=rule.getOperand1() && rankBasedOnCompletionTime<rule.getOperand2()) {
 
 						userScore += rule.getScore();
-						//scores.put(userData.getName(),scores.get(userData.getName())+rule.getScore());
+
 					}
 				}
 				continue;
@@ -160,15 +123,11 @@ public class RulesEngine {
 
 			MapToLeaderBoard(activityName, userData,userScore);
 		}
-		return leaderboardData;
+		
 	}
 
 	public Integer MapToLeaderBoard(String activityName, HackerDataFetch userData,Integer userScore) {
 
-
-
-		ListIterator<LeaderBoardBean> iterator = masterLeader.listIterator();
-		List<LeaderBoardBean> masterCopy = new ArrayList<LeaderBoardBean>(masterLeader);
 		int i=0;
 		int size=masterLeader.size();
 		for(i = 0; i < size; i++)
